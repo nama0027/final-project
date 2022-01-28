@@ -4,8 +4,12 @@ const authenticateUser = async (req, res, next) => {
   const accessToken = req.header('Authorization');
 
   try {
-    const user = await Member.findOne({ accessToken });
+    const user = await Member.findOne({ accessToken }).populate('role', {
+      description: 1,
+      _id: 0,
+    });
     if (user) {
+      res.locals.user = user;
       next();
     } else {
       res.status(401).json({ response: 'Please, log in', success: false });

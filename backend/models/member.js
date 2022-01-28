@@ -1,15 +1,20 @@
 import mongoose from 'mongoose';
 import crypto from 'crypto';
 
+import { customAlphabet } from 'nanoid';
+
+const alphabet = 'PKFU2022';
+const nanoid = customAlphabet(alphabet, 9);
+
 const MemberSchema = new mongoose.Schema({
   photo: String,
 
-  first_name: {
+  firstName: {
     type: String,
     required: true,
   },
 
-  last_name: {
+  lastName: {
     type: String,
     required: true,
   },
@@ -20,7 +25,7 @@ const MemberSchema = new mongoose.Schema({
   },
 
   phone: {
-    type: Number,
+    type: String,
     required: true,
   },
 
@@ -28,8 +33,29 @@ const MemberSchema = new mongoose.Schema({
     type: String,
   },
 
-  membership_type: String,
-  status: String,
+  membershipType: {
+    type: String,
+    enum: [
+      'individual',
+      'family',
+      'studentIndividual',
+      'studentFamily',
+      'retiredIndividual',
+      'retiredFamily',
+    ],
+    required: true,
+  },
+
+  status: {
+    type: String,
+    enum: ['pending', 'confirmed', 'expired', 'terminated'],
+    default: 'pending',
+  },
+
+  membershipNumber: {
+    type: String,
+    default: () => nanoid(),
+  },
 
   children: [
     {
@@ -60,6 +86,11 @@ const MemberSchema = new mongoose.Schema({
   accessToken: {
     type: String,
     default: () => crypto.randomBytes(128).toString('hex'),
+  },
+
+  role: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Role',
   },
 });
 

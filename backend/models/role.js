@@ -3,7 +3,8 @@ import mongoose from 'mongoose';
 const RoleSchema = new mongoose.Schema({
   description: {
     type: String,
-    required: true,
+    enum: ['member', 'admin', 'executive'],
+    default: 'member',
   },
 });
 

@@ -3,6 +3,21 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 
 import forum from './Router/forum.js';
+import membersRoute from './Router/membersRoutes.js';
+import announcementRoutes from './Router/announcementRoutes.js';
+import boardRoutes from './Router/boardRoutes.js';
+import messageRoutes from './Router/messageRoutes.js';
+import roleRoutes from './Router/roleRoutes.js';
+
+//---------------------database ---------------------------//
+
+const mongoUrl = process.env.MONGO_URL || 'mongodb://localhost/PKFU';
+mongoose.connect(mongoUrl, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useCreateIndex: true,
+});
+mongoose.Promise = Promise;
 
 // Defines the port the app will run on. Defaults to 8080, but can be
 // overridden when starting the server. For example:
@@ -16,6 +31,11 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/', forum);
+app.use('/', membersRoute);
+app.use('/', announcementRoutes);
+app.use('/', boardRoutes);
+app.use('/', messageRoutes);
+app.use('/', roleRoutes);
 
 // ----------Start the server--------------------//
 app.listen(port, () => {
