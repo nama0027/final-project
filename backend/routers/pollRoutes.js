@@ -1,0 +1,81 @@
+import express from 'express';
+
+//-------------importing models----------------//
+import PollQuestions from '../models/pollQuestions.js';
+import PollAnswers from '../models/pollAnswers.js';
+import PollHistory from '../models/pollVotingHistory.js';
+
+//---------------importing middleware--------------------------//
+import authenticateUser from '../utils/authenticate.js';
+import authenticateRole from '../utils/authRole.js';
+
+//-------------------Router---------------------------------//
+const router = express.Router();
+
+//--------------------------Routes----------------------------------//
+
+//--------------------Create poll Question-------------//
+router.post(
+  '/question',
+  authenticateUser,
+  authenticateRole,
+  async (req, res) => {
+    const { description } = req.body;
+    const { user } = res.locals;
+
+    try {
+      const newQuestion = await new PollQuestions({
+        description,
+        postedBy: user.firstName,
+      }).save();
+      res.status(201).json({ response: newQuestion, success: true });
+    } catch (error) {
+      res.status(400).json({ response: error, success: false });
+    }
+  }
+);
+
+//--------------------Create poll Answer-------------//
+router.post(
+  '/question',
+  authenticateUser,
+  authenticateRole,
+  async (req, res) => {
+    const { description, questionId } = req.body;
+    try {
+      const queryQuestion = await PollQuestions.findById(questionId);
+      if (queryQuestion) {
+        const newAnswer = await new PollAnswers({
+          description,
+          question: queryQuestion,
+        }).save();
+        res.status(201).json({ response: newAnswer, success: true });
+      } else {
+        res
+          .status(400)
+          .json({ response: 'Question not found', success: false });
+      }
+    } catch (error) {
+      res.status(400).json({ response: error, success: false });
+    }
+  }
+);
+
+//----------------------show poll-------------------------------//
+
+router.get('/poll/:date', authenticateUser, async (req, res) => {
+  const { date } = req.params;
+  try {
+    const currentPoll = await PollQuestions.find({createdAt: {$gte: new Date (date), $lt:new Date (date + 1)}}).exec();
+    if (currentPoll) {
+      const 
+
+    } else{
+      res.json({ success: false, message: 'No poll available' });
+    }
+  } catch (error) {
+    res.status(400).json({ response: error, success: false });
+  }
+});
+
+export default router;

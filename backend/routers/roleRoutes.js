@@ -10,6 +10,8 @@ import authenticateRole from '../utils/authRole.js';
 //-------------------Router---------------------------------//
 const router = express.Router();
 
+//--------------------------Routes----------------------------------//
+
 //--------------------Create role-------------//
 router.post('/role', async (req, res) => {
   const { description } = req.body;

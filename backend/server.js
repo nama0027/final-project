@@ -2,12 +2,12 @@ import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 
-import forum from './Router/forum.js';
-import membersRoute from './Router/membersRoutes.js';
-import announcementRoutes from './Router/announcementRoutes.js';
-import boardRoutes from './Router/boardRoutes.js';
-import messageRoutes from './Router/messageRoutes.js';
-import roleRoutes from './Router/roleRoutes.js';
+import forum from './routers/forum.js';
+import membersRoute from './routers/membersRoutes.js';
+import announcementRoutes from './routers/announcementRoutes.js';
+import boardRoutes from './routers/boardRoutes.js';
+import messageRoutes from './routers/messageRoutes.js';
+import roleRoutes from './routers/roleRoutes.js';
 
 //---------------------database ---------------------------//
 

@@ -10,6 +10,8 @@ import authenticateRole from '../utils/authRole.js';
 //-------------------Router---------------------------------//
 const router = express.Router();
 
+//--------------------------Routes----------------------------------//
+
 //*******show all chat messages******/
 
 router.get('/messages', authenticateUser);
