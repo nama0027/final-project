@@ -10,7 +10,7 @@ const AnnouncementSchema = new mongoose.Schema({
     enum: ['public', 'members_only'],
     default: 'members_only',
   },
-  uploadedFile: {
+  fileName: {
     type: String,
   },
 

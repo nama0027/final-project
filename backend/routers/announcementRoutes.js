@@ -1,7 +1,8 @@
 import express from 'express';
+import cloudinaryFramework from 'cloudinary';
 import multer from 'multer';
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import dotenv from 'dotenv';
 
 //-------------importing models----------------//
 import Announcement from '../models/announcement.js';
@@ -13,20 +14,26 @@ import authenticateRole from '../utils/authRole.js';
 //-------------------Router---------------------------------//
 const router = express.Router();
 
-//---------------------------for file upload------------------//
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+//-------------------------setting up dotenv-------------------//
+dotenv.config();
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, __dirname);
-  },
-  filename: (req, file, cb) => {
-    cb(null, file.originalname);
+//------------------------------------------------------------//
+
+const cloudinary = cloudinaryFramework.v2;
+cloudinary.config({
+  cloud_name: 'pkfu', // this needs to be whatever you get from cloudinary
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+//---------------------------for file upload------------------//
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'files',
+    allowedFormats: ['jpeg', 'jpg', 'png', 'pdf'],
   },
 });
-
-const uploadStorage = multer({ storage: storage });
+const parser = multer({ storage: storage });
 
 //-------------------Post Announcement---------------------------------//
 
@@ -34,7 +41,7 @@ router.post(
   '/announcement',
   authenticateUser,
   authenticateRole,
-  uploadStorage.single('file'),
+  parser.single('fileName'),
   async (req, res) => {
     const { description, announcementType } = req.body;
     const { user } = res.locals;
@@ -42,7 +49,7 @@ router.post(
       const newAnnouncement = await new Announcement({
         description,
         announcementType,
-        uploadedFile: req.file.filename,
+        fileName: req.file.path,
         postedBy: user.firstName,
       }).save();
       res.status(201).json({ response: newAnnouncement, success: true });

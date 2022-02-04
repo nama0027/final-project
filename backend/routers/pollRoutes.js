@@ -66,11 +66,15 @@ router.post(
 router.get('/poll/:date', authenticateUser, async (req, res) => {
   const { date } = req.params;
   try {
-    const currentPoll = await PollQuestions.find({createdAt: {$gte: new Date (date), $lt:new Date (date + 1)}}).exec();
+    const currentPoll = await PollQuestions.find({
+      createdAt: { $gte: new Date(date), $lt: new Date(date + 1) },
+    }).exec();
     if (currentPoll) {
-      const 
-
-    } else{
+      const questionIds = currentPoll.map((item) => item._id);
+      if (questionIds) {
+        const pollAnswers = await PollAnswers.find(questionIds);
+      }
+    } else {
       res.json({ success: false, message: 'No poll available' });
     }
   } catch (error) {
@@ -79,3 +83,38 @@ router.get('/poll/:date', authenticateUser, async (req, res) => {
 });
 
 export default router;
+
+{
+  /*
+set my filepath for fileupload like this:
+ 
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./uploads");
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
+  },
+});
+
+const upload = multer({
+  storage: storage,
+  fileFilter: (req, file, cb) => {
+    const fileExists = !fs.existsSync(
+      path.join("uploads", file.originalname)
+    );
+    if (
+      fileExists &&
+      (file.mimetype == "application/pdf" ||
+        file.mimetype == "text/xml" ||
+        file.mimetype == "application/xml" ||
+        file.mimetype == "image/jpeg")
+    ) {
+      cb(null, true);
+    } else {
+      cb(new Error("File already exists or filetype not allowed"));
+    }
+  },
+}).single("file");
+//*/
+}
