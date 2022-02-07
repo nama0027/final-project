@@ -6,7 +6,7 @@ const authenticateRole = async (req, res, next) => {
       res.locals.user = user;
       next();
     } else {
-      res.status(401).json({ response: 'not allowed to post', success: false });
+      res.status(401).json({ response: 'not allowed ', success: false });
     }
   } catch (error) {
     res.status(400).json({ response: error, success: false });

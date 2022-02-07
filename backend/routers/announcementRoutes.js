@@ -21,7 +21,7 @@ dotenv.config();
 
 const cloudinary = cloudinaryFramework.v2;
 cloudinary.config({
-  cloud_name: 'pkfu', // this needs to be whatever you get from cloudinary
+  cloud_name: process.env.CLOUDINARY_NAME, // this needs to be whatever you get from cloudinary
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
@@ -49,7 +49,8 @@ router.post(
       const newAnnouncement = await new Announcement({
         description,
         announcementType,
-        fileName: req.file.path,
+        filePath: req.file.path || '',
+        public_id: req.file.filename || '',
         postedBy: user.firstName,
       }).save();
       res.status(201).json({ response: newAnnouncement, success: true });
@@ -58,7 +59,91 @@ router.post(
     }
   }
 );
-
 //-------------------Get Announcement---------------------------------//
+router.get('/announcements', authenticateUser, async (req, res) => {
+  try {
+    const allAnnouncements = await Announcement.find().exec();
+    if (allAnnouncements) {
+      res.status(200).json({ response: allAnnouncements, success: true });
+    } else {
+      res.json({ success: false, message: 'No announcement available' });
+    }
+  } catch (error) {
+    res.status(400).json({ response: error, success: false });
+  }
+});
+
+//-------------------Delete Announcement---------------------------------//
+router.delete(
+  '/announcements/:announcementId',
+  authenticateUser,
+  authenticateRole,
+  async (req, res) => {
+    const { announcementId } = req.params;
+
+    try {
+      const announcementForDelete = await Announcement.findById(announcementId);
+      if (announcementForDelete) {
+        await cloudinary.uploader.destroy(announcementForDelete.public_id);
+        const deletedAnnouncement = await Announcement.findOneAndDelete({
+          _id: announcementId,
+        });
+        if (deletedAnnouncement) {
+          res
+            .status(200)
+            .json({ response: deletedAnnouncement, success: true });
+        } else {
+          res
+            .status(404)
+            .json({ response: 'Announcement not deleted', success: false });
+        }
+      } else {
+        res
+          .status(404)
+          .json({ response: 'Announcement not found', success: false });
+      }
+    } catch (error) {
+      res.status(400).json({ response: error, success: false });
+    }
+  }
+);
+
+//-------------------Update Announcement---------------------------------//
+router.patch(
+  '/announcements/:announcementId',
+  authenticateUser,
+  authenticateRole,
+
+  async (req, res) => {
+    const { announcementId } = req.params;
+    const { user } = res.locals;
+    const { description, announcementType } = req.body;
+
+    try {
+      const queriedAnnouncement = await Announcement.findById(announcementId);
+      if (queriedAnnouncement) {
+        const updateAnnouncement = await Announcement.findByIdAndUpdate(
+          announcementId,
+          {
+            $set: {
+              description: description || queriedAnnouncement.description,
+              announcementType:
+                announcementType || queriedAnnouncement.announcementType,
+              postedBy: user.firstName,
+            },
+          },
+          { new: true }
+        );
+        res.status(201).json({ response: updateAnnouncement, success: true });
+      } else {
+        res
+          .status(404)
+          .json({ response: 'Announcement not found', success: false });
+      }
+    } catch (error) {
+      res.status(400).json({ response: error, success: false });
+    }
+  }
+);
 
 export default router;

@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components/macro';
-import loader from '../reducers/loader.js';
+
 import { useSelector } from 'react-redux';
 import Lottie from 'lottie-react';
 import animation from '../assets/animation.json';
