@@ -10,11 +10,9 @@ const AnnouncementSchema = new mongoose.Schema({
     enum: ['public', 'members_only'],
     default: 'members_only',
   },
-  filePath: {
-    type: String,
-  },
-  public_id: {
-    type: String,
+  file: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'File',
   },
   createdAt: {
     type: Date,

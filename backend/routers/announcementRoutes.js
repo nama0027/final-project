@@ -62,7 +62,9 @@ router.post(
 //-------------------Get Announcement---------------------------------//
 router.get('/announcements', authenticateUser, async (req, res) => {
   try {
-    const allAnnouncements = await Announcement.find().exec();
+    const allAnnouncements = await Announcement.find()
+      .sort({ createdAt: -1 })
+      .exec();
     if (allAnnouncements) {
       res.status(200).json({ response: allAnnouncements, success: true });
     } else {

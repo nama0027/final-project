@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import Member from './member.js';
 
 const BoardSchema = new mongoose.Schema({
   description: {

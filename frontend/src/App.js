@@ -7,9 +7,9 @@ import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import { user } from './reducers/user.js';
 import { loader } from './reducers/loader.js';
 import { announcements } from './reducers/announcements';
-//import { messages } from './reducers/messages';
+import { messages } from './reducers/messages';
 //import { members } from './reducers/members';
-//import { events } from './reducers/events';
+import { events } from './reducers/events';
 
 //-----------------pages-------------------//
 import Login from './pages/Login.js';
@@ -22,9 +22,9 @@ const reducer = combineReducers({
   user: user.reducer,
   loader: loader.reducer,
   announcements: announcements.reducer,
-  //messages: messages.reducer,
+  messages: messages.reducer,
   //members: members.reducer,
-  //events: events.reducer,
+  events: events.reducer,
 });
 //------------configure store-----------------//
 const store = configureStore({ reducer });

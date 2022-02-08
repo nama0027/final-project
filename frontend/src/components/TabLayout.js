@@ -2,10 +2,14 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Tabs, Button } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { announcements, getAnnouncements } from '../reducers/announcements';
+import { useDispatch, useSelector } from 'react-redux';
+
 import Post from './Post';
 import EventCalendar from './EventCalendar';
+import AddEditAnnouncement from './AddEditAnnouncment';
+import MessagesPan from './MessagesPan';
+import { getMessages } from '../reducers/messages';
+import { getEvents } from '../reducers/events';
 
 const NewTabs = styled(Tabs)`
   min-height: 100vh;
@@ -39,14 +43,13 @@ const NewTabs = styled(Tabs)`
 
 const TabLayout = () => {
   const accessToken = useSelector((store) => store.user.accessToken);
-  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  //----------------------------------------------//
   const [activeTab, setActiveTab] = useState('1');
+  const [visible, setVisible] = useState(false);
 
-  const { TabPane } = Tabs;
-  const operations = {
-    right: [<Button key="1">Left </Button>, <Button key="2">Right </Button>],
-  };
+  //----------------------------------------------//
 
   useEffect(() => {
     if (!accessToken) {
@@ -54,24 +57,67 @@ const TabLayout = () => {
     }
   }, [accessToken, navigate]);
 
+  //----------------------------------------------//
+  const { TabPane } = Tabs;
+  const operations = {
+    right: [
+      <Button
+        key="1"
+        onClick={() => {
+          setVisible(true);
+        }}
+      >
+        Add Announcement{' '}
+      </Button>,
+      <Button key="2">Right </Button>,
+    ],
+  };
+
+  //----------------------------------------------//
+  const onTabChange = (key) => {
+    if (key === '1') {
+      setActiveTab(key);
+    } else if (key === '2') {
+      setActiveTab(key);
+      dispatch(getEvents());
+    } else if (key === '3') {
+      setActiveTab(key);
+      dispatch(getMessages());
+    } else {
+      console.log('invalid key');
+    }
+  };
+  const onCreate = (values) => {
+    console.log('Received values of form: ', values);
+    setVisible(false);
+  };
+
+  //----------------------------------------------//
   return (
     <div>
       <NewTabs
         type="card"
         tabBarExtraContent={operations}
         defaultActiveKey={activeTab}
-        onChange={(key) => setActiveTab(key)}
+        onChange={(key) => onTabChange(key)}
       >
         <TabPane tab="Tab 1" key="1" forceRender="true">
-          {activeTab === '1' && <Post typeOfPost="announcements" />}
+          {activeTab === '1' && <Post />}
         </TabPane>
         <TabPane tab="Tab 2" key="2" forceRender="true">
           {activeTab === '2' && <EventCalendar />}
         </TabPane>
         <TabPane tab="Tab 3" key="3" forceRender="true">
-          Content of Tab 3
+          {activeTab === '3' && <MessagesPan />}
         </TabPane>
       </NewTabs>
+      <AddEditAnnouncement
+        visible={visible}
+        onCreate={onCreate}
+        onCancel={() => {
+          setVisible(false);
+        }}
+      />
     </div>
   );
 };

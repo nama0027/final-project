@@ -1,39 +1,28 @@
 import mongoose from 'mongoose';
 
 const EventSchema = new mongoose.Schema({
-  event_description: {
+  eventTitle: {
     type: String,
     required: true,
+    minlength: 5,
+    maxlength: 100,
   },
 
-  event_type: {
+  eventType: {
     type: String,
-    required: true,
+    default: 'general',
+    enum: ['kids', 'cultural', 'integration', 'general'],
   },
 
-  start_date: {
+  eventDate: {
     type: Date,
     required: true,
   },
 
-  end_date: {
-    type: Date,
-    required: true,
-  },
+  eventTime: { type: Number, required: true },
 
-  event_time: {},
-
-  event_venue: {
+  eventVenue: {
     type: String,
-  },
-
-  age_limit: {
-    type: String,
-    required: true,
-  },
-
-  event_ticket: {
-    type: Number,
   },
 
   attendees: [

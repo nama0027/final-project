@@ -8,6 +8,7 @@ import announcementRoutes from './routers/announcementRoutes.js';
 import boardRoutes from './routers/boardRoutes.js';
 import messageRoutes from './routers/messageRoutes.js';
 import roleRoutes from './routers/roleRoutes.js';
+import eventsRoutes from './routers/eventsRoutes.js';
 
 //---------------------database ---------------------------//
 
@@ -36,6 +37,7 @@ app.use('/', announcementRoutes);
 app.use('/', boardRoutes);
 app.use('/', messageRoutes);
 app.use('/', roleRoutes);
+app.use('/', eventsRoutes);
 
 // ----------Start the server--------------------//
 app.listen(port, () => {

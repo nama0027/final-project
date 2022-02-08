@@ -16,8 +16,16 @@ const router = express.Router();
 
 router.get('/messages', authenticateUser);
 router.get('/messages', async (req, res) => {
-  const messages = await Message.find({});
-  res.status(201).json({ response: messages, success: true });
+  try {
+    const messages = await Message.find({}).sort({ createdAt: -1 }).exec();
+    if (messages) {
+      res.status(201).json({ response: messages, success: true });
+    } else {
+      res.status(400).json({ response: 'No messages yet!', success: false });
+    }
+  } catch (error) {
+    res.status(400).json({ response: error, success: false });
+  }
 });
 
 //*******post message******/

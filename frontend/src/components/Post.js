@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Card } from 'antd';
+import { Card, Popconfirm } from 'antd';
 import moment from 'moment';
 import {
   EditOutlined,
@@ -14,32 +14,35 @@ import {
   handelDeleteAnnouncement,
 } from '../reducers/announcements.js';
 
-const Post = ({ typeOfPost }) => {
+const Post = () => {
   const accessToken = useSelector((store) => store.user.accessToken);
   const announcementsItems = useSelector((store) => store.announcements.items);
   const dispatch = useDispatch();
-
   const navigate = useNavigate();
 
+  //----------------check logged in user------------------------//
   useEffect(() => {
     if (!accessToken) {
       navigate('/login');
     }
   }, [accessToken, navigate]);
 
+  //----------------load data------------------------//
   useEffect(() => {
-    console.log(typeOfPost);
-    if (typeOfPost === 'announcements') {
-      dispatch(getAnnouncements());
-    } else {
-    }
-  }, [typeOfPost, dispatch]);
-  console.log('announcementsItems', announcementsItems);
+    dispatch(getAnnouncements());
+  }, [dispatch]);
 
-  const handleClick = (filePath) => {
+  //----------------event handlers ----------------------//
+
+  const onAttachmentClick = (filePath) => {
     window.open(filePath);
   };
 
+  const onDeleteAnnouncement = (announcementId) => {
+    dispatch(handelDeleteAnnouncement(announcementId));
+  };
+
+  ////////////////////////////////////////////////////////////
   return (
     <>
       {announcementsItems?.map((item) => (
@@ -47,10 +50,14 @@ const Post = ({ typeOfPost }) => {
           key={item._id}
           actions={[
             <EditOutlined key="edit" />,
-            <DeleteOutlined
-              key="delete"
-              onClick={() => dispatch(handelDeleteAnnouncement(item._id))}
-            />,
+            <Popconfirm
+              title="Are you sure to delete this announcement?"
+              onConfirm={() => onDeleteAnnouncement(item._id)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <DeleteOutlined key="delete" />
+            </Popconfirm>,
             <MailOutlined key="email" />,
           ]}
         >
@@ -58,7 +65,7 @@ const Post = ({ typeOfPost }) => {
           <p>{item.postedBy}</p>
           <p>{moment(item.createdAt).fromNow()}</p>
 
-          <PaperClipOutlined onClick={() => handleClick(item.filePath)} />
+          <PaperClipOutlined onClick={() => onAttachmentClick(item.filePath)} />
         </Card>
       ))}
     </>
