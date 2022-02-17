@@ -137,7 +137,7 @@ const RegisterUpdateMember = () => {
           {...tailFormItemLayout}
         >
           <Checkbox>
-            I have read the <a href="">PKU constitution</a> and agreed with it.
+            I have read the PKU constitution and agreed with it.
           </Checkbox>
         </Form.Item>
         <Form.Item {...tailFormItemLayout}>

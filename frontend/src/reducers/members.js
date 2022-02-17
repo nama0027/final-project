@@ -1,7 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { loader } from './loader.js';
 import { API_URL } from '../utils/constants.js';
-import { batch } from 'react-redux';
 
 export const members = createSlice({
   name: 'members',

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Modal, Form, Input, Radio, Upload, message } from 'antd';
+import { Button, Modal, Form, Input, Radio, Upload } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import { normFile } from '../utils/constants.js';
 
