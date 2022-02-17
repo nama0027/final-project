@@ -9,6 +9,7 @@ import boardRoutes from './routers/boardRoutes.js';
 import messageRoutes from './routers/messageRoutes.js';
 import roleRoutes from './routers/roleRoutes.js';
 import eventsRoutes from './routers/eventsRoutes.js';
+import fileRoutes from './routers/fileRoutes.js';
 
 //---------------------database ---------------------------//
 
@@ -28,6 +29,7 @@ const port = process.env.PORT || 8080;
 const app = express();
 
 // Add middlewares to enable cors and json body parsing
+
 app.use(cors());
 app.use(express.json());
 
@@ -38,6 +40,7 @@ app.use('/', boardRoutes);
 app.use('/', messageRoutes);
 app.use('/', roleRoutes);
 app.use('/', eventsRoutes);
+app.use('/', fileRoutes);
 
 // ----------Start the server--------------------//
 app.listen(port, () => {

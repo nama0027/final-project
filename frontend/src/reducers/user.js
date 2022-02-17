@@ -11,6 +11,7 @@ export const user = createSlice({
     userName: null,
     accessToken: null,
     role: null,
+    avatar: null,
     error: null,
   },
   reducers: {
@@ -28,6 +29,9 @@ export const user = createSlice({
     setRole: (store, action) => {
       store.role = action.payload;
     },
+    setAvatar: (store, action) => {
+      store.avatar = action.payload;
+    },
     setError: (store, action) => {
       store.error = action.payload;
     },
@@ -35,7 +39,6 @@ export const user = createSlice({
 });
 
 export const getUser = (values) => {
-  console.log('thunk', values);
   return (dispatch) => {
     dispatch(loader.actions.setLoading(true));
     fetch(API_URL('login'), {
@@ -47,13 +50,13 @@ export const getUser = (values) => {
       .then((data) => {
         console.log(data);
         if (data.success) {
-          console.log('i am in if');
           batch(() => {
             console.log(data.response.userId);
             dispatch(user.actions.setUserId(data.response.userId));
             dispatch(user.actions.setUserName(data.response.username));
             dispatch(user.actions.setAccessToken(data.response.accessToken));
             dispatch(user.actions.setRole(data.response.role.description));
+            dispatch(user.actions.setAvatar(data.response.avatar.filePath));
             dispatch(user.actions.setError(null));
           });
           dispatch(loader.actions.setLoading(false));
@@ -64,6 +67,7 @@ export const getUser = (values) => {
             dispatch(user.actions.setUserId(null));
             dispatch(user.actions.setAccessToken(null));
             dispatch(user.actions.setRole(null));
+            dispatch(user.actions.setAvatar(null));
             dispatch(user.actions.setError(data.response));
           });
           dispatch(loader.actions.setLoading(false));

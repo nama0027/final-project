@@ -1,6 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { loader } from './loader.js';
-import { user } from './user.js';
 import { API_URL } from '../utils/constants.js';
 import { batch } from 'react-redux';
 
@@ -9,7 +8,6 @@ export const messages = createSlice({
 
   initialState: {
     items: [],
-    message: '',
     error: null,
   },
   reducers: {
@@ -17,7 +15,8 @@ export const messages = createSlice({
       store.items = action.payload;
     },
     addMessage: (store, action) => {
-      store.message = action.payload;
+      const data = action.payload;
+      store.items = [data, ...store.items];
     },
     deleteMessage: (store, action) => {
       store.items = store.items.filter((item) => item._id !== action.payload);
@@ -28,9 +27,9 @@ export const messages = createSlice({
   },
 });
 
+//-------------------------------------------//
 export const getMessages = () => {
   return (dispatch, getState) => {
-    console.log('in getMessages');
     dispatch(loader.actions.setLoading(true));
     fetch(API_URL('messages'), {
       method: 'Get',
@@ -38,9 +37,7 @@ export const getMessages = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
         if (data.success) {
-          console.log('i am in if in getMessages');
           batch(() => {
             dispatch(messages.actions.setItems(data.response));
             dispatch(messages.actions.setError(null));
@@ -58,7 +55,6 @@ export const getMessages = () => {
 };
 
 export const postMessage = (value) => {
-  console.log('thunk', value);
   return (dispatch, getState) => {
     dispatch(loader.actions.setLoading(true));
     fetch(API_URL('message'), {
@@ -71,11 +67,9 @@ export const postMessage = (value) => {
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
         if (data.success) {
-          console.log('i am in if');
           batch(() => {
-            dispatch(messages.actions.addMessage(data.response.message));
+            dispatch(messages.actions.addMessage(data.response));
             dispatch(messages.actions.setError(null));
           });
           dispatch(loader.actions.setLoading(false));

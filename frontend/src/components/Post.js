@@ -16,6 +16,7 @@ import {
 
 const Post = () => {
   const accessToken = useSelector((store) => store.user.accessToken);
+  const userRole = useSelector((store) => store.user.role);
   const announcementsItems = useSelector((store) => store.announcements.items);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -47,25 +48,31 @@ const Post = () => {
     <>
       {announcementsItems?.map((item) => (
         <Card
-          key={item._id}
-          actions={[
-            <EditOutlined key="edit" />,
-            <Popconfirm
-              title="Are you sure to delete this announcement?"
-              onConfirm={() => onDeleteAnnouncement(item._id)}
-              okText="Yes"
-              cancelText="No"
-            >
-              <DeleteOutlined key="delete" />
-            </Popconfirm>,
-            <MailOutlined key="email" />,
-          ]}
+          key={item?._id}
+          actions={
+            userRole === 'executive' && [
+              <EditOutlined key="edit" />,
+              <Popconfirm
+                title="Are you sure to delete this announcement?"
+                onConfirm={() => onDeleteAnnouncement(item?._id)}
+                okText="Yes"
+                cancelText="No"
+              >
+                <DeleteOutlined key="delete" />
+              </Popconfirm>,
+              <MailOutlined key="email" />,
+            ]
+          }
         >
-          <p>{item.description}</p>
-          <p>{item.postedBy}</p>
-          <p>{moment(item.createdAt).fromNow()}</p>
-
-          <PaperClipOutlined onClick={() => onAttachmentClick(item.filePath)} />
+          <p>{item?.description}</p>
+          <p style={{ float: 'left' }}>{item?.postedBy} </p>
+          <p style={{ float: 'right' }}>{moment(item?.createdAt).fromNow()}</p>
+          {item?.uploadedFile && (
+            <PaperClipOutlined
+              style={{ float: 'right' }}
+              onClick={() => onAttachmentClick(item?.uploadedFile.filePath)}
+            />
+          )}
         </Card>
       ))}
     </>

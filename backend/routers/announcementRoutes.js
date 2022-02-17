@@ -1,11 +1,9 @@
 import express from 'express';
-import cloudinaryFramework from 'cloudinary';
-import multer from 'multer';
-import { CloudinaryStorage } from 'multer-storage-cloudinary';
-import dotenv from 'dotenv';
+import { parser } from '../utils/fileStorage.js';
 
 //-------------importing models----------------//
 import Announcement from '../models/announcement.js';
+import File from '../models/file.js';
 
 //---------------importing middleware--------------------------//
 import authenticateUser from '../utils/authenticate.js';
@@ -13,27 +11,6 @@ import authenticateRole from '../utils/authRole.js';
 
 //-------------------Router---------------------------------//
 const router = express.Router();
-
-//-------------------------setting up dotenv-------------------//
-dotenv.config();
-
-//------------------------------------------------------------//
-
-const cloudinary = cloudinaryFramework.v2;
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_NAME, // this needs to be whatever you get from cloudinary
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
-//---------------------------for file upload------------------//
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: 'files',
-    allowedFormats: ['jpeg', 'jpg', 'png', 'pdf'],
-  },
-});
-const parser = multer({ storage: storage });
 
 //-------------------Post Announcement---------------------------------//
 
@@ -43,17 +20,39 @@ router.post(
   authenticateRole,
   parser.single('fileName'),
   async (req, res) => {
-    const { description, announcementType } = req.body;
+    const { values } = req.body;
     const { user } = res.locals;
+    const dataObject = JSON.parse(values);
+    const { description, announcementType } = dataObject;
+
     try {
-      const newAnnouncement = await new Announcement({
-        description,
-        announcementType,
-        filePath: req.file.path || '',
-        public_id: req.file.filename || '',
-        postedBy: user.firstName,
-      }).save();
-      res.status(201).json({ response: newAnnouncement, success: true });
+      if (req.file) {
+        const newFile = await new File({
+          filePath: req.file.path,
+          public_id: req.file.filename,
+        }).save();
+
+        if (newFile) {
+          const newAnnouncement = await new Announcement({
+            description,
+            announcementType,
+            uploadedFile: newFile,
+            postedBy: user.firstName,
+          }).save();
+          res.status(201).json({ response: newAnnouncement, success: true });
+        } else {
+          res
+            .status(404)
+            .json({ response: 'File not uploaded', success: false });
+        }
+      } else {
+        const newAnnouncement = await new Announcement({
+          description,
+          announcementType,
+          postedBy: user.firstName,
+        }).save();
+        res.status(201).json({ response: newAnnouncement, success: true });
+      }
     } catch (error) {
       res.status(400).json({ response: error, success: false });
     }
@@ -63,6 +62,7 @@ router.post(
 router.get('/announcements', authenticateUser, async (req, res) => {
   try {
     const allAnnouncements = await Announcement.find()
+      .populate('uploadedFile')
       .sort({ createdAt: -1 })
       .exec();
     if (allAnnouncements) {
@@ -84,16 +84,24 @@ router.delete(
     const { announcementId } = req.params;
 
     try {
-      const announcementForDelete = await Announcement.findById(announcementId);
+      const announcementForDelete = await Announcement.findById(
+        announcementId
+      ).populate('uploadedFile');
       if (announcementForDelete) {
-        await cloudinary.uploader.destroy(announcementForDelete.public_id);
+        if (announcementForDelete.public_id) {
+          await cloudinary.uploader.destroy(announcementForDelete.public_id);
+          const deletedFile = await File.findOneAndDelete({
+            _id: announcementForDelete._id,
+          });
+        }
         const deletedAnnouncement = await Announcement.findOneAndDelete({
           _id: announcementId,
         });
         if (deletedAnnouncement) {
-          res
-            .status(200)
-            .json({ response: deletedAnnouncement, success: true });
+          res.status(200).json({
+            response: { deletedAnnouncement },
+            success: true,
+          });
         } else {
           res
             .status(404)

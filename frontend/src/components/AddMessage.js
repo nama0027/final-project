@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Form, Input, Button } from 'antd';
-import { getMessages, postMessage } from '../reducers/messages';
+import { postMessage } from '../reducers/messages';
 
 const AddMessage = () => {
   const [newMessage, setNewMessage] = useState('');
@@ -10,9 +10,7 @@ const AddMessage = () => {
   const dispatch = useDispatch();
 
   const onSubmit = () => {
-    console.log(newMessage);
     dispatch(postMessage(newMessage));
-    dispatch(getMessages());
   };
 
   const onChange = (e) => {

@@ -1,0 +1,10 @@
+const accessToken = useSelector((store) => store.user.accessToken);
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch;
+
+  useEffect(() => {
+    if (!accessToken) {
+      navigate('/login');
+    }
+  }, [accessToken, navigate]);

@@ -5,13 +5,6 @@ import bcrypt from 'bcrypt';
 //-------------importing models----------------//
 import Member from '../models/member.js';
 
-import Children from '../models/children.js';
-import Event from '../models/events.js';
-
-//---------------importing middleware--------------------------//
-import authenticateUser from '../utils/authenticate.js';
-import authenticateRole from '../utils/authRole.js';
-
 //-------------------Router---------------------------------//
 const router = express.Router();
 
@@ -32,10 +25,12 @@ router.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
   try {
-    const user = await Member.findOne({ username }).populate('role', {
-      description: 1,
-      _id: 0,
-    });
+    const user = await Member.findOne({ username })
+      .populate('role', {
+        description: 1,
+        _id: 0,
+      })
+      .populate('avatar', { filePath: 1, public_id: 0 });
 
     if (user && bcrypt.compareSync(password, user.password)) {
       res.status(200).json({
@@ -44,6 +39,7 @@ router.post('/login', async (req, res) => {
           username: user.username,
           accessToken: user.accessToken,
           role: user.role,
+          avatar: user.avatar,
         },
         success: true,
       });

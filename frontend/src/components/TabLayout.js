@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import moment from 'moment';
 import { Tabs, Button } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
 import Post from './Post';
-import EventCalendar from './EventCalendar';
-import AddEditAnnouncement from './AddEditAnnouncment';
-import MessagesPan from './MessagesPan';
-import { getMessages } from '../reducers/messages';
-import { getEvents } from '../reducers/events';
+import EventCalendar from './EventCalendar.js';
+import AddEditAnnouncement from './AddEditAnnouncment.js';
+
+import AddEditEvent from './AddEditEvent.js';
+import MessagesPan from './MessagesPan.js';
+import { getMessages } from '../reducers/messages.js';
+import { getEvents, createEvent } from '../reducers/events.js';
+import { createAnnouncement } from '../reducers/announcements.js';
 
 const NewTabs = styled(Tabs)`
   min-height: 100vh;
@@ -43,11 +47,13 @@ const NewTabs = styled(Tabs)`
 
 const TabLayout = () => {
   const accessToken = useSelector((store) => store.user.accessToken);
+  const userRole = useSelector((store) => store.user.role);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   //----------------------------------------------//
   const [activeTab, setActiveTab] = useState('1');
-  const [visible, setVisible] = useState(false);
+  const [visiblePost, setVisiblePost] = useState(false);
+  const [visibleEvent, setVisibleEvent] = useState(false);
 
   //----------------------------------------------//
 
@@ -64,12 +70,19 @@ const TabLayout = () => {
       <Button
         key="1"
         onClick={() => {
-          setVisible(true);
+          setVisiblePost(true);
         }}
       >
         Add Announcement{' '}
       </Button>,
-      <Button key="2">Right </Button>,
+      <Button
+        key="2"
+        onClick={() => {
+          setVisibleEvent(true);
+        }}
+      >
+        Add Event{' '}
+      </Button>,
     ],
   };
 
@@ -87,9 +100,22 @@ const TabLayout = () => {
       console.log('invalid key');
     }
   };
-  const onCreate = (values) => {
+
+  //---------------------------------------------//
+  const handelCreatePost = (values) => {
     console.log('Received values of form: ', values);
-    setVisible(false);
+    setVisiblePost(false);
+    dispatch(createAnnouncement(values));
+  };
+
+  const handelCreateEvent = (values) => {
+    const eventDate = moment(values.eventDate).format();
+    const eventTime = moment(values.eventTime).format('HH:mm');
+    delete values.eventDate;
+    delete values.eventTime;
+    const newValues = { ...values, eventDate, eventTime };
+    setVisibleEvent(false);
+    dispatch(createEvent(newValues));
   };
 
   //----------------------------------------------//
@@ -97,25 +123,33 @@ const TabLayout = () => {
     <div>
       <NewTabs
         type="card"
-        tabBarExtraContent={operations}
+        tabBarExtraContent={userRole === 'executive' && operations}
         defaultActiveKey={activeTab}
         onChange={(key) => onTabChange(key)}
       >
-        <TabPane tab="Tab 1" key="1" forceRender="true">
+        <TabPane tab="Announcement" key="1" forceRender="true">
           {activeTab === '1' && <Post />}
         </TabPane>
-        <TabPane tab="Tab 2" key="2" forceRender="true">
+        <TabPane tab="Events" key="2" forceRender="true">
           {activeTab === '2' && <EventCalendar />}
         </TabPane>
-        <TabPane tab="Tab 3" key="3" forceRender="true">
+        <TabPane tab="Messages" key="3" forceRender="true">
           {activeTab === '3' && <MessagesPan />}
         </TabPane>
       </NewTabs>
+
       <AddEditAnnouncement
-        visible={visible}
-        onCreate={onCreate}
+        visible={visiblePost}
+        onCreate={handelCreatePost}
         onCancel={() => {
-          setVisible(false);
+          setVisiblePost(false);
+        }}
+      />
+      <AddEditEvent
+        visible={visibleEvent}
+        onCreate={handelCreateEvent}
+        onCancel={() => {
+          setVisibleEvent(false);
         }}
       />
     </div>

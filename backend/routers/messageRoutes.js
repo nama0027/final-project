@@ -5,7 +5,6 @@ import Message from '../models/message.js';
 
 //---------------importing middleware--------------------------//
 import authenticateUser from '../utils/authenticate.js';
-import authenticateRole from '../utils/authRole.js';
 
 //-------------------Router---------------------------------//
 const router = express.Router();

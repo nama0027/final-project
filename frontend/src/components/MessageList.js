@@ -16,20 +16,19 @@ const MessageList = () => {
     }
   }, [accessToken, navigate]);
 
-  console.log(messagesList);
   return (
     <List
       dataSource={messagesList}
       header={`${messagesList.length} ${
-        messagesList.length > 1 ? 'messages' : 'reply'
+        messagesList?.length > 1 ? 'messages' : 'reply'
       }`}
       itemLayout="horizontal"
       renderItem={(item) => (
         <Comment
           {...{
-            author: item.sender,
-            content: item.message,
-            datetime: moment(item.createdAt).fromNow(),
+            author: item?.sender,
+            content: item?.message,
+            datetime: moment(item?.createdAt).fromNow(),
           }}
         />
       )}

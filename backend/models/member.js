@@ -64,13 +64,6 @@ const MemberSchema = new mongoose.Schema({
     },
   ],
 
-  events: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Event',
-    },
-  ],
-
   username: {
     type: String,
     unique: true,
@@ -91,6 +84,10 @@ const MemberSchema = new mongoose.Schema({
   role: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Role',
+  },
+  avatar: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'File',
   },
 });
 

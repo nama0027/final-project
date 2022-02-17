@@ -13,7 +13,7 @@ const router = express.Router();
 //--------------------------Routes----------------------------------//
 
 //--------------------Create role-------------//
-router.post('/role', async (req, res) => {
+router.post('/role', authenticateUser, authenticateRole, async (req, res) => {
   const { description } = req.body;
   try {
     const newRole = await new Role({ description }).save();

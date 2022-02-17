@@ -1,6 +1,5 @@
 import React from 'react';
 import { Comment, Avatar } from 'antd';
-
 import MessageList from './MessageList';
 import AddMessage from './AddMessage';
 

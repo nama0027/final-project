@@ -26,37 +26,44 @@ router.post('/board', async (req, res) => {
 });
 
 /*/*****************adding reference to member********************** */
-router.patch('/board/:boardId/member/:memberId', async (req, res) => {
-  const { boardId, memberId } = req.params;
+router.patch(
+  '/board/:boardId/member/:memberId',
+  authenticateUser,
+  authenticateRole,
+  async (req, res) => {
+    const { boardId, memberId } = req.params;
 
-  try {
-    const queriedBoard = await Board.findById(boardId);
+    try {
+      const queriedBoard = await Board.findById(boardId);
 
-    if (queriedBoard) {
-      const queriedMember = await Member.findById(memberId);
-      if (queriedMember) {
-        const updateBoardMember = await Board.findByIdAndUpdate(
-          boardId,
-          {
-            $push: {
-              member: queriedMember,
+      if (queriedBoard) {
+        const queriedMember = await Member.findById(memberId);
+        if (queriedMember) {
+          const updateBoardMember = await Board.findByIdAndUpdate(
+            boardId,
+            {
+              $push: {
+                member: queriedMember,
+              },
             },
-          },
-          { new: true }
-        );
-        res.status(201).json({ response: updateBoardMember, success: true });
+            { new: true }
+          );
+          res.status(201).json({ response: updateBoardMember, success: true });
+        } else {
+          res
+            .status(400)
+            .json({ response: 'member not found', success: false });
+        }
       } else {
-        res.status(400).json({ response: 'member not found', success: false });
+        res
+          .status(400)
+          .json({ response: 'board entry not found', success: false });
       }
-    } else {
-      res
-        .status(400)
-        .json({ response: 'board entry not found', success: false });
+    } catch (error) {
+      res.status(400).json({ response: error, success: false });
     }
-  } catch (error) {
-    res.status(400).json({ response: error, success: false });
   }
-});
+);
 
 /*/*****************adding reference to role********************** */
 router.patch('/board/:boardId/role/:roleId', async (req, res) => {
@@ -102,6 +109,7 @@ router.get('/board', async (req, res) => {
         e_mail: 1,
         phone: 1,
         _id: 0,
+        avatar: 1,
       })
       .populate('role', { description: 1, _id: 0 });
     return allBoardMembers

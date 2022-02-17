@@ -1,8 +1,8 @@
 import express from 'express';
-import Event from '../models/events.js';
 
 //-------------importing models----------------//
 import Events from '../models/events.js';
+import Member from '../models/member.js';
 
 //---------------importing middleware--------------------------//
 import authenticateUser from '../utils/authenticate.js';
@@ -16,9 +16,10 @@ const router = express.Router();
 //--------------------Create event---------------------//
 router.post('/events', authenticateUser, authenticateRole, async (req, res) => {
   const { eventTitle, eventType, eventDate, eventTime, eventVenue } = req.body;
+
   try {
-    if (eventTitle.length < 5 && eventTitle.length > 100) {
-      throw { message: 'Event title should be between 5 to 100 characters.' };
+    if (eventTitle.length < 4 && eventTitle.length > 100) {
+      throw { message: 'Event title should be between 4 to 100 characters.' };
     }
 
     const newEvent = await new Events({
@@ -49,6 +50,43 @@ router.get('/events', authenticateUser, async (req, res) => {
     res.status(400).json({ response: error, success: false });
   }
 });
+
+//------------------add user---------------------------//
+router.patch(
+  '/event/:eventId/member/:memberId',
+  authenticateUser,
+  async (req, res) => {
+    const { eventId, memberId } = req.params;
+
+    try {
+      const queriedEvent = await Events.findById(eventId);
+
+      if (queriedEvent) {
+        const queriedMember = await Member.findById(memberId);
+        if (queriedMember) {
+          const updatedEvent = await Events.findByIdAndUpdate(
+            eventId,
+            {
+              $set: {
+                attendees: queriedMember,
+              },
+            },
+            { new: true }
+          );
+          res.status(201).json({ response: updatedEvent, success: true });
+        } else {
+          res
+            .status(400)
+            .json({ response: 'member not found', success: false });
+        }
+      } else {
+        res.status(400).json({ response: 'event not found', success: false });
+      }
+    } catch (error) {
+      res.status(400).json({ response: error, success: false });
+    }
+  }
+);
 
 //---------------------------//
 export default router;

@@ -4,14 +4,14 @@ const EventSchema = new mongoose.Schema({
   eventTitle: {
     type: String,
     required: true,
-    minlength: 5,
+    minlength: 4,
     maxlength: 100,
   },
 
   eventType: {
     type: String,
-    default: 'general',
-    enum: ['kids', 'cultural', 'integration', 'general'],
+    default: 'family',
+    enum: ['kids', 'family', 'individuals'],
   },
 
   eventDate: {
@@ -19,7 +19,7 @@ const EventSchema = new mongoose.Schema({
     required: true,
   },
 
-  eventTime: { type: Number, required: true },
+  eventTime: { type: String, required: true },
 
   eventVenue: {
     type: String,
