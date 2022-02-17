@@ -1,5 +1,5 @@
 import React from 'react';
-import Lottie from 'react-lottie';
+import Lottie from 'lottie-react';
 import animationData from '../assets/notFound.json';
 
 const NotFound = () => {
