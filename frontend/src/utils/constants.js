@@ -1,4 +1,4 @@
-const BASE_URL = 'https://pku-umea.herokuapp.com/';
+const BASE_URL = 'https://pku-umea.herokuapp.com';
 
 export const API_URL = (slug) => `${BASE_URL}/${slug}`;
 
